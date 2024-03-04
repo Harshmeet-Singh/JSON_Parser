@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Product Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      overflow: hidden;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .product {
+      flex-basis: calc(20% - 20px);
+      border: 3px solid #ddd;
+      padding: 10px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .product h2 {
+      margin: 0 0 10px;
+      color: #333;
+      font-size: 20px;
+    }
+    .product p {
+      margin: 0;
+      color: #666;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Products</h1>
+    <div id="products"></div>
+  </div>
+
+  <script>
+    fetch('https://s3.amazonaws.com/open-to-cors/assignment.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const products = Object.keys(data.products).map(id => {
+          return { id, ...data.products[id] };
+        });
+
+        products.sort((a, b) => b.popularity - a.popularity);
+
+        const productsContainer = document.getElementById('products');
+
+        let row;
+        products.forEach((product, index) => {
+          if (index % 5 === 0) {
+            row = document.createElement('div');
+            row.className = 'row';
+            productsContainer.appendChild(row);
+          }
+
+          const productDiv = document.createElement('div');
+          productDiv.className = 'product';
+
+          const title = document.createElement('h2');
+          title.textContent = `Title: ${product.title}`;
+          productDiv.appendChild(title);
+
+          const price = document.createElement('p');
+          price.textContent = `Price: ${product.price}`;
+          productDiv.appendChild(price);
+
+          row.appendChild(productDiv);
+        });
+      })
+      .catch(error => {
+        console.error(`Error: ${error}`);
+      });
+  </script>
+</body>
+</html>
